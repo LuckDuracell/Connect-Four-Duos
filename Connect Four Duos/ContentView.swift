@@ -29,9 +29,10 @@ struct ContentView: View {
                     .foregroundColor(.white)
                     .font(.largeTitle)
                     .padding(5)
-                Text(board == [[0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]] ? "Hold on a Column to Place a Puck!" : " ")
+                Text(board == [[0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]] ? "Tap on a Column to Place a Puck!" : " ")
                     .bold()
-                    .foregroundColor(.gray.opacity(0.6))
+                    .foregroundColor(.white.opacity(0.5))
+                    //.shadow(color: .white.opacity(0.4), radius: 11, x: 0, y: 0)
                     .font(.headline)
                     .padding(5)
                 Spacer()
@@ -56,11 +57,23 @@ struct ContentView: View {
                             })
                         }
                         .padding(3)
-                        .onLongPressGesture(perform: {
-                            hoverCircle = index
-                        })
+//                        .onLongPressGesture(perform: {
+//                            hoverCircle = index
+//                        })
+                        .gesture(
+                            DragGesture()
+                                .onChanged { value in
+                                    hoverCircle += slotOffset(value.predictedEndTranslation.width)
+                                    if hoverCircle > 6 {
+                                        hoverCircle = 6
+                                    }
+                                    if hoverCircle < 0 {
+                                        hoverCircle = 0
+                                    }
+                            }
+                        )
                         .onTapGesture(perform: {
-                            hoverCircle = -1
+                            hoverCircle = index
                         })
                     })
                 }
@@ -154,5 +167,11 @@ func puckColor(_ num: Int) -> Color {
     } else if num == 2 {
         output = .yellow
     }
+    return output
+}
+
+func slotOffset(_ num: CGFloat) -> Int {
+    let device = deviceScreen()
+    let output = Int((num / (device.width * 2)).rounded())
     return output
 }
